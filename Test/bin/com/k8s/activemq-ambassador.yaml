@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tdactivemq
+  labels:
+    app: tdactivemq
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tdactivemq
+  template:
+    metadata:
+      labels:
+        app: tdactivemq
+    spec:
+      terminationGracePeriodSeconds: 3
+      imagePullSecrets:
+      - name: regcred
+      containers:
+        - name: tdactivemq
+          image: sdartifact.td.teradata.com:7001/uda/datamover/16.20.99.00/tdactivemq
+          ports:
+            - name: atp
+              containerPort: 61616
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tdactivemq
+  namespace: default
+  labels:
+    app: tdactivemq
+  annotations:
+    getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  activemq_mapping
+      prefix: /activemq/
+      service: tdactivemq:80
+spec:
+  type: NodePort
+  selector:
+    app: tdactivemq
+  ports:
+    - name: activemq-port
+      port: 80
+      targetPort: atp

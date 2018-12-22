@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tdactivemq
+  labels:
+    app: tdactivemq
+  namespace: dm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tdactivemq
+  template:
+    metadata:
+      labels:
+        app: tdactivemq
+    spec:
+      terminationGracePeriodSeconds: 3
+      imagePullSecrets:
+      - name: regcred
+      containers:
+        - name: tdactivemq
+          image: sdartifact.td.teradata.com:7001/uda/datamover/16.20.99.00/tdactivemq
+          livenessProbe:
+            tcpSocket:
+              port: 61616
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          ports:
+            - containerPort: 61616
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tdactivemq
+  namespace: dm
+  labels:
+    app: tdactivemq
+spec:
+  type: NodePort
+  selector:
+    app: tdactivemq
+  ports:
+    - name: activemq-port
+      port: 61616
+      targetPort: 61616

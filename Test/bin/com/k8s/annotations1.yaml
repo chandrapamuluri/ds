@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tdmrest3
+  namespace: default
+  annotations:    
+    getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  rest_mapping3
+      prefix: /rest3/
+      service: tdmrest2:dm:80/datamover/api
+ ---------------------------------------------- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: activemq1
+  annotations:
+    getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  activemq_mapping1
+      prefix: /activemq1/
+      service: tdactivemq.default:61616
+      #host_rewrite: httpbin.org
+spec:
+  ports:
+  - port: 80
+ -----------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: activemqmap
+  annotations:
+    getambassador.io/config: |
+      ---
+      apiVersion: ambassador/v0
+      kind:  Mapping
+      name:  activemq_mapping2
+      prefix: /activemq2/
+      service: tdactivemq:80
+spec:
+  ports:
+  - port: 80
